@@ -3,6 +3,7 @@
 
 void __init(int _Q,int _width,int _heigth,int _o_size);
 void add_form(char* name,char* form_name);
-void search_form(char* name);
+void search_X_form(char* name);
+void search_Y_form(char* name);
 
 #endif // RNN_H_INCLUDED

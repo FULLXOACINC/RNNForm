@@ -67,9 +67,13 @@ void add_form(char* name, char* form_name)
             Y[last][i] = 1;
             i++;
         }
+        else
         if(ch == '#') {
             Y[last][i] = -1;
             i++;
+        }
+        else{
+
         }
 
     }
@@ -81,7 +85,7 @@ void add_form(char* name, char* form_name)
     fclose(file);
 }
 
-void search_form(char* name)
+void search_X_form(char* name)
 {
     FILE *file = fopen (name, "r");
     char ch;
@@ -149,7 +153,6 @@ void search_form(char* name)
             }
 
         }
-        printf("%i\n",E);
 
     }
 
@@ -158,6 +161,117 @@ void search_form(char* name)
     for(int i = 0; i < last; i++) {
         for(int j = 0; j < x_size; j++) {
             if(X[i][j]!=res_x[j]){
+                is_find=0;
+                break;
+            }
+            is_find=1;
+
+        }
+        if(is_find){
+            number=i;
+            break;
+        }
+
+    }
+    if(number!=-1)
+        for(int j = 0; j < y_size; j++) {
+            if(Y[number][j] == 1) {
+                printf(".");
+            }
+            if(Y[number][j]  == -1) {
+                printf("#");
+            }
+            if(Y[number][j]  == 0) {
+                printf("%i ", res_x[j]);
+            }
+
+            if((j + 1) % (35) == 0 )
+                printf("\n");
+        }
+    else
+        printf("not search\n");
+    free(res_x);
+    free(res_y);
+
+}
+
+void search_Y_form(char* name)
+{
+    FILE *file = fopen (name, "r");
+    char ch;
+    int *res_x = (int *)malloc(x_size * sizeof(int));
+    int *res_y = (int *)malloc(y_size * sizeof(int));
+
+    int **temp = (int **)malloc(y_size * sizeof(int*));
+    for(int i = 0; i < y_size; i++)
+        temp[i] = (int *)malloc(sizeof(int));
+    for(int i = 0; i < y_size; i++)
+        memset(temp[i], 0, sizeof(int));
+
+    int index = 0;
+    while(index < y_size) {
+        fscanf (file, "%c", &ch);
+        if(ch == '.') {
+            res_y[index] = 1;
+            index++;
+        }
+        if(ch == '#') {
+            res_y[index] = -1;
+            index++;
+        }
+
+    }
+    fclose(file);
+
+    int is_relax = 1;
+    int E_old=-1;
+    int E=0;
+    while(E!=E_old) {
+        is_relax++;
+        E_old=E;
+
+        for(int i = 0; i < x_size; i++) {
+            for(int j = 0; j < y_size; j++) {
+                res_x[i] += res_y[j] * W[i][j];
+            }
+            if(res_x[i] > 0)
+                res_x[i] = 1;
+            if(res_x[i] < 0)
+                res_x[i] = -1;
+        }
+
+        for(int i = 0; i < y_size; i++) {
+            for(int j = 0; j < x_size; j++) {
+                res_y[i] += res_x[j] * W[j][i];
+            }
+            if(res_y[i] > 0)
+                res_y[i] = 1;
+            if(res_y[i] < 0)
+                res_y[i] = -1;
+        }
+
+        for(int i = 0; i < y_size; i++) {
+            temp[i][1]=0;
+            for(int j = 0; j < x_size; j++) {
+                temp[i][1] += W[j][i] * res_y[i];
+            }
+
+        }
+        E=0;
+        for(int i = 0; i < y_size; i++) {
+            for(int j = 0; j < x_size; j++) {
+                E += temp[i][1] * res_x[j];
+            }
+
+        }
+
+    }
+
+    int number=-1;
+    int is_find=0;
+    for(int i = 0; i < last; i++) {
+        for(int j = 0; j < y_size; j++) {
+            if(Y[i][j]!=res_y[j]){
                 is_find=0;
                 break;
             }
@@ -185,6 +299,8 @@ void search_form(char* name)
             if((j + 1) % (width) == 0 )
                 printf("\n");
         }
+    else
+        printf("not search\n");
     free(res_x);
     free(res_y);
 
