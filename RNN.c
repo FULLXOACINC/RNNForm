@@ -8,17 +8,20 @@
 int **W;
 int **X;
 int **Y;
-int width, heigth;
+int X_width, X_heigth;
+int Y_width, Y_heigth;
 int y_size;
 int x_size;
 int last;
 
-void __init(int _Q, int _width, int _heigth, int _o_size)
+void __init(int _Q, int _width, int _heigth, int _o_x_size, int _o_y_size)
 {
     x_size = _width * _heigth;
-    width = _width;
-    heigth = _heigth;
-    y_size = _o_size;
+    X_width = _width;
+    X_heigth = _heigth;
+    y_size = _o_y_size * _o_x_size;
+    Y_width = _o_x_size;
+    Y_heigth = _o_y_size;
 
     last = 0;
 
@@ -66,13 +69,10 @@ void add_form(char* name, char* form_name)
         if(ch == '.') {
             Y[last][i] = 1;
             i++;
-        }
-        else
-        if(ch == '#') {
+        } else if(ch == '#') {
             Y[last][i] = -1;
             i++;
-        }
-        else{
+        } else {
 
         }
 
@@ -114,12 +114,13 @@ void search_X_form(char* name)
     fclose(file);
 
     int is_relax = 1;
-    int E_old=-1;
-    int E=0;
-    while(E!=E_old) {
+    int E_old = -1;
+    int it = 0;
+    int E = 0;
+    while(E != E_old) {
+        it++;
         is_relax++;
-        E_old=E;
-
+        E_old = E;
         for(int i = 0; i < y_size; i++) {
             for(int j = 0; j < x_size; j++) {
                 res_y[i] += res_x[j] * W[j][i];
@@ -140,13 +141,13 @@ void search_X_form(char* name)
         }
 
         for(int i = 0; i < y_size; i++) {
-            temp[i][1]=0;
+            temp[i][1] = 0;
             for(int j = 0; j < x_size; j++) {
                 temp[i][1] += W[j][i] * res_y[i];
             }
 
         }
-        E=0;
+        E = 0;
         for(int i = 0; i < y_size; i++) {
             for(int j = 0; j < x_size; j++) {
                 E += temp[i][1] * res_x[j];
@@ -155,25 +156,25 @@ void search_X_form(char* name)
         }
 
     }
-
-    int number=-1;
-    int is_find=0;
+    printf("iteration: %i\n", it-1);
+    int number = -1;
+    int is_find = 0;
     for(int i = 0; i < last; i++) {
         for(int j = 0; j < x_size; j++) {
-            if(X[i][j]!=res_x[j]){
-                is_find=0;
+            if(X[i][j] != res_x[j]) {
+                is_find = 0;
                 break;
             }
-            is_find=1;
+            is_find = 1;
 
         }
-        if(is_find){
-            number=i;
+        if(is_find) {
+            number = i;
             break;
         }
 
     }
-    if(number!=-1)
+    if(number != -1)
         for(int j = 0; j < y_size; j++) {
             if(Y[number][j] == 1) {
                 printf(".");
@@ -185,13 +186,14 @@ void search_X_form(char* name)
                 printf("%i ", res_x[j]);
             }
 
-            if((j + 1) % (35) == 0 )
+            if((j + 1) % (Y_width) == 0 )
                 printf("\n");
         }
     else
         printf("not search\n");
     free(res_x);
     free(res_y);
+    free(temp);
 
 }
 
@@ -223,12 +225,12 @@ void search_Y_form(char* name)
     }
     fclose(file);
 
-    int is_relax = 1;
-    int E_old=-1;
-    int E=0;
-    while(E!=E_old) {
-        is_relax++;
-        E_old=E;
+    int it = 0;
+    int E_old = -1;
+    int E = 0;
+    while(E != E_old) {
+        it++;
+        E_old = E;
 
         for(int i = 0; i < x_size; i++) {
             for(int j = 0; j < y_size; j++) {
@@ -251,13 +253,13 @@ void search_Y_form(char* name)
         }
 
         for(int i = 0; i < y_size; i++) {
-            temp[i][1]=0;
+            temp[i][1] = 0;
             for(int j = 0; j < x_size; j++) {
                 temp[i][1] += W[j][i] * res_y[i];
             }
 
         }
-        E=0;
+        E = 0;
         for(int i = 0; i < y_size; i++) {
             for(int j = 0; j < x_size; j++) {
                 E += temp[i][1] * res_x[j];
@@ -266,25 +268,25 @@ void search_Y_form(char* name)
         }
 
     }
-
-    int number=-1;
-    int is_find=0;
+    printf("iteration: %i\n", it-1);
+    int number = -1;
+    int is_find = 0;
     for(int i = 0; i < last; i++) {
         for(int j = 0; j < y_size; j++) {
-            if(Y[i][j]!=res_y[j]){
-                is_find=0;
+            if(Y[i][j] != res_y[j]) {
+                is_find = 0;
                 break;
             }
-            is_find=1;
+            is_find = 1;
 
         }
-        if(is_find){
-            number=i;
+        if(is_find) {
+            number = i;
             break;
         }
 
     }
-    if(number!=-1)
+    if(number != -1)
         for(int j = 0; j < x_size; j++) {
             if(X[number][j] == 1) {
                 printf(".");
@@ -296,13 +298,14 @@ void search_Y_form(char* name)
                 printf("%i ", res_x[j]);
             }
 
-            if((j + 1) % (width) == 0 )
+            if((j + 1) % (X_width) == 0 )
                 printf("\n");
         }
     else
         printf("not search\n");
     free(res_x);
     free(res_y);
+    free(temp);
 
 }
 
